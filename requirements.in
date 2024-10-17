@@ -5,4 +5,7 @@ Pygments
 django-filter
 django-extensions
 pillow
+setuptools
+razorpay
+social-auth-app-django
 ruff

@@ -2,9 +2,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Cart, Orders, Address, Payment
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
+from .forms import AddressForm
+import razorpay
+import random
+from django.conf import settings
+from django.core.mail import send_mail
 
 
 # Create your views here.
@@ -12,6 +19,43 @@ def index(request):
     allproducts = Product.objects.all()
     context = {"allproducts": allproducts}
     return render(request, "index.html", context)
+
+
+class ProductRegister(CreateView):
+    model = Product
+    fields = "__all__"  # Includes the 'user' field by default
+    success_url = "/ProductList"
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Customize how the 'user' field is displayed in the dropdown
+        form.fields["userid"].label_from_instance = (
+            lambda obj: f"{obj.username}"
+        )  # Display the username
+        return form
+
+
+def ProductList(req):
+    if req.user.is_authenticated:
+        user = req.user
+        object_list = Product.objects.filter(userid=user)
+        context = {"object_list": object_list, "username": user}
+        return render(req, "app/product_list.html", context)
+    else:
+        user = None
+        return redirect("/signin")
+
+
+class ProductUpdate(UpdateView):
+    model = Product
+    template_name_suffix = "_update_form"
+    fields = "__all__"
+    success_url = "/ProductList"
+
+
+class ProductDelete(DeleteView):
+    model = Product
+    success_url = "/ProductList"
 
 
 def validate_password(password):
@@ -383,5 +427,106 @@ def updateqty(request, qv, productid):
         else:
             allcarts = Cart.objects.filter(productid=productid)
             allcarts.delete()
-
     return redirect("/showcarts")
+
+
+def addaddress(req):
+    if req.user.is_authenticated:
+        if req.method == "POST":
+            form = AddressForm(req.POST)
+            if form.is_valid():
+                address = form.save(commit=False)
+                address.userid = req.user
+                address.save()
+                return redirect("/showaddress")
+        else:
+            form = AddressForm()
+
+        context = {"form": form}
+        return render(req, "addaddress.html", context)
+    else:
+        return redirect("/signin")
+
+
+def showaddress(request):
+    if request.user.is_authenticated:
+        addresses = Address.objects.filter(userid=request.user)
+        if request.method == "POST":
+            return redirect("/make_payment")
+
+        context = {"addresses": addresses}
+        return render(request, "showaddress.html", context)
+    else:
+        return redirect("/signin")
+
+
+def about(request):
+    return render(request, "about.html")
+
+
+def contact(request):
+    return render(request, "contact.html")
+
+
+def make_payment(request):
+    if request.user.is_authenticated:
+        cart_items = Cart.objects.filter(userid=request.user.id)
+        total_amount = sum(item.productid.price * item.qty for item in cart_items)
+        user = request.user
+        client = razorpay.Client(
+            auth=("rzp_test_wH0ggQnd7iT3nB", "eZseshY3oSsz2fcHZkTiSlCm")
+        )
+        try:
+            data = {
+                "amount": int(total_amount * 100),
+                "currency": "INR",
+                "receipt": str(random.randrange(1000, 90000)),
+            }
+            payment = client.order.create(data=data)
+
+            for item in cart_items:
+                order_id = random.randrange(1000, 90000)
+                orderdata = Orders.objects.create(
+                    orderid=order_id,
+                    productid=item.productid,
+                    userid=user,
+                    qty=item.qty,
+                )
+
+                orderdata.save()
+                Payment.objects.create(
+                    receiptid=order_id,
+                    orderid=orderdata,
+                    userid=user,
+                    productid=item.productid,
+                    totalprice=item.qty * item.productid.price,
+                )
+            cart_items.delete()
+
+            # subject = f"Lanikea Payment Status for your Order={order_id}"
+            # msg = f"Hi {user}, Thank you for using our service\nTotal Amount Paid=Rs. {total_amount}"
+            # emailfrom = settings.EMAIL_HOST_USER
+            # receiver = [user, user.email]
+            # send_mail(subject, msg, emailfrom, receiver)
+
+            context = {"data": payment, "amount": total_amount}
+            return render(request, "make_payment.html", context)
+        except ValidationError as e:
+            context = {}
+            context["errmsg"] = (
+                "An error occurred while creating payment order. Please try again"
+            )
+            print(e)
+            return render(request, "make_payment.html", context)
+    else:
+        return redirect("/signin")
+
+
+def showorders(request):
+    if request.user.is_authenticated:
+        userorders = Orders.objects.filter(userid=request.user).select_related(
+            "productid"
+        )
+        return render(request, "showorders.html", {"orders": userorders})
+    else:
+        return redirect("/signin")

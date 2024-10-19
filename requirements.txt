@@ -4,37 +4,104 @@ asgiref==3.8.1
     # via django
 certifi==2024.8.30
     # via requests
+cffi==1.17.1
+    # via cryptography
 charset-normalizer==3.4.0
     # via requests
+click==8.1.7
+    # via djlint
+colorama==0.4.6
+    # via djlint
+cryptography==43.0.3
+    # via social-auth-core
+cssbeautifier==1.15.1
+    # via djlint
+defusedxml==0.7.1
+    # via
+    #   python3-openid
+    #   social-auth-core
 django==5.1.2
     # via
     #   -r requirements.in
     #   django-extensions
     #   django-filter
     #   djangorestframework
+    #   social-auth-app-django
 django-extensions==3.2.3
     # via -r requirements.in
 django-filter==24.3
     # via -r requirements.in
 djangorestframework==3.15.2
     # via -r requirements.in
+djlint==1.35.2
+    # via -r requirements.in
+editorconfig==0.12.4
+    # via
+    #   cssbeautifier
+    #   jsbeautifier
+html-tag-names==0.1.2
+    # via djlint
+html-void-elements==0.1.0
+    # via djlint
 idna==3.10
     # via requests
+jsbeautifier==1.15.1
+    # via
+    #   cssbeautifier
+    #   djlint
+json5==0.9.25
+    # via djlint
 markdown==3.7
     # via -r requirements.in
+oauthlib==3.2.2
+    # via
+    #   requests-oauthlib
+    #   social-auth-core
+pathspec==0.12.1
+    # via djlint
 pillow==10.4.0
     # via -r requirements.in
+pycparser==2.22
+    # via cffi
 pygments==2.18.0
     # via -r requirements.in
+pyjwt==2.9.0
+    # via social-auth-core
+python-social-auth==0.3.6
+    # via -r requirements.in
+python3-openid==3.2.0
+    # via social-auth-core
+pyyaml==6.0.2
+    # via djlint
 razorpay==1.4.2
     # via -r requirements.in
+regex==2024.9.11
+    # via djlint
 requests==2.32.3
-    # via razorpay
+    # via
+    #   razorpay
+    #   requests-oauthlib
+    #   social-auth-core
+requests-oauthlib==2.0.0
+    # via social-auth-core
 ruff==0.6.9
     # via -r requirements.in
 setuptools==75.2.0
     # via -r requirements.in
+six==1.16.0
+    # via
+    #   cssbeautifier
+    #   jsbeautifier
+social-auth-app-django==5.4.2
+    # via -r requirements.in
+social-auth-core==4.5.4
+    # via
+    #   -r requirements.in
+    #   python-social-auth
+    #   social-auth-app-django
 sqlparse==0.5.1
     # via django
+tqdm==4.66.5
+    # via djlint
 urllib3==2.2.3
     # via requests

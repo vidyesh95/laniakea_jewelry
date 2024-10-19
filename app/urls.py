@@ -15,12 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-# from django.contrib import admin
-# from django.urls import path, include
-# from django.conf.urls.static import static
-# from django.conf import settings
+from django.conf.urls.static import static
+from django.conf import settings
 from django.urls import path
 from . import views
+from app.views import ProductRegister, ProductUpdate, ProductDelete
 
 urlpatterns = [
     path("", views.index, name="index"),
@@ -44,11 +43,26 @@ urlpatterns = [
     path("medallionlist/", views.medallionlist, name="medallionlist"),
     path("hairpinlist/", views.hairpinlist, name="hairpinlist"),
     path("searchproduct/", views.searchproduct, name="searchproduct"),
+    path(
+        "request_password_reset/",
+        views.request_password_reset,
+        name="request_password_reset",
+    ),
+    path("reset_password/<username>/", views.reset_password, name="reset_password"),
     path("showpricerange/", views.showpricerange, name="showpricerange"),
     path("sortingbyprice/", views.sortingbyprice, name="sortingbyprice"),
     path("showcarts/", views.showcarts, name="showcarts"),
     path("addtocart/<int:productid>", views.addtocart, name="addtocart"),
     path("removecart/<int:productid>", views.removecart, name="removecart"),
     path("updateqty/<int:qv>/<int:productid>", views.updateqty, name="updateqty"),
-]
-# ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("addaddress/", views.addaddress, name="addaddress"),
+    path("showaddress/", views.showaddress, name="showaddress"),
+    path("contact/", views.contact, name="contact"),
+    path("about/", views.about, name="about"),
+    path("make_payment/", views.make_payment, name="make_payment"),
+    path("showorders/", views.showorders, name="showorders"),
+    path("ProductRegister/", ProductRegister.as_view(), name="ProductRegister"),
+    path("ProductList/", views.ProductList, name="ProductList"),
+    path("ProductUpdate/<int:pk>", ProductUpdate.as_view(), name="ProductUpdate"),
+    path("ProductDelete/<int:pk>", ProductDelete.as_view(), name="ProductDelete"),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

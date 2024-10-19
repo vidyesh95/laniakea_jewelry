@@ -1,2 +1,2 @@
 # Laniakea 
-## [Jewelry E-commerce website](https://github.com/vidyesh95/laniakea_jewelry)
+## [Jewelry E-commerce website](https://zapakazapaka.pythonanywhere.com/)
